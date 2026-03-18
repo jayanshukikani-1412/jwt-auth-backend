@@ -1,6 +1,9 @@
 import express, { type Request, type Response } from 'express';
 import cors from 'cors';
 import ENV_CONFIG from './config/env.config.ts';
+import authRouter from './router/auth.router.ts';
+import { notFound } from './middleware/not-found.ts';
+import { errorHandler } from './middleware/error-handler.ts';
 
 // create app function
 const createApp = () => {
@@ -16,6 +19,12 @@ const createApp = () => {
     app.get("/health", (req: Request, res: Response) => {
         res.status(200).json({ success: true, message: "Server is running" });
     });
+
+    // use auth router
+    app.use("/api/auth", authRouter);
+
+    app.use(notFound)
+    app.use(errorHandler)
 
     // return app
     return app;
