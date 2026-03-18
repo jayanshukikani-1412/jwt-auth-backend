@@ -1,6 +1,17 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 
-export const errorHandler = (err: Error, req: Request, res: Response) => {
+export const globalErrorHandler = (
+    err: any,
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const status = err.status || err.statusCode || 500;
 
-    res.status(500).json({ success: false, message: "Internal server error" })
-}
+    res.status(status).json({
+        success: false,
+        status,
+        message: err.message || "Internal Server Error",
+        stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    });
+};

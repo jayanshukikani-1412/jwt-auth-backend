@@ -1,16 +1,17 @@
 import { User } from "../models/user.model.ts";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import ENV_CONFIG from "../config/env.config.ts";
+import createHttpError from "http-errors";
 
-export const signUpHandler = async (req: Request, res: Response) => {
+export const signUpHandler = async (req: Request, res: Response, next: NextFunction) => {
     const { firstName, lastName, email, password } = req.body;
 
     const existingUser = await User.findOne({ email })
 
     if (existingUser) {
-        return res.status(400).json({ success: false, message: "User with this email already exists" });
+        return next(createHttpError(400, "User with this email already exists"))
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,18 +29,18 @@ export const signUpHandler = async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, message: "User created successfully", data: userData });
 }
 
-export const loginHandler = async (req: Request, res: Response) => {
+export const loginHandler = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-        return res.status(400).json({ success: false, message: "Invalid email or password" });
+        return next(createHttpError(400, "Invalid email or password"))
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-        return res.status(400).json({ success: false, message: "Invalid email or password" });
+        return next(createHttpError(400, "Invalid email or password"))
     }
 
     const expiresIn = ENV_CONFIG.JWT_ACCESS_EXPIRY || "15m";

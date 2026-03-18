@@ -3,7 +3,7 @@ import cors from 'cors';
 import ENV_CONFIG from './config/env.config.ts';
 import authRouter from './router/auth.router.ts';
 import { notFound } from './middleware/not-found.ts';
-import { errorHandler } from './middleware/error-handler.ts';
+import { globalErrorHandler } from './middleware/error-handler.ts';
 
 // create app function
 const createApp = () => {
@@ -24,7 +24,7 @@ const createApp = () => {
     app.use("/api/auth", authRouter);
 
     app.use(notFound)
-    app.use(errorHandler)
+    app.use(globalErrorHandler)
 
     // return app
     return app;

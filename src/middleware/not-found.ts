@@ -1,5 +1,6 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
+import createHttpError from "http-errors";
 
-export const notFound = (req: Request, res: Response) => {
-    res.status(404).json({ success: false, message: "Route not found" });
+export const notFound = (req: Request, res: Response, next: NextFunction) => {
+    return next(createHttpError(404, "API Route not found"))
 }
