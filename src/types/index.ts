@@ -1,3 +1,4 @@
+import type { Request } from "express";
 import type { Document, Types } from "mongoose";
 
 export interface IUser extends Document {
@@ -22,6 +23,15 @@ export interface IUserLoginPayload {
     password: string;
 }
 
+
+export interface IJWTPayload {
+    userId: string;
+    email: string;
+}
+
+export interface IAuthRequest extends Request {
+    user?: IJWTPayload;
+}
 
 export interface ApiResponse<T = unknown> {
     success: boolean;

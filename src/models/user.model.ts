@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import type { IUser } from "../types/index.ts";
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
@@ -32,4 +33,4 @@ const userSchema = new Schema({
     },
 }, { timestamps: true });
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model<IUser>("User", userSchema);
