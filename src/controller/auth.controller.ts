@@ -8,16 +8,20 @@ import createHttpError from "http-errors";
 export const signUpHandler = async (req: Request, res: Response, next: NextFunction) => {
     const { firstName, lastName, email, password } = req.body;
 
+    // check if user already exists
     const existingUser = await User.findOne({ email })
 
     if (existingUser) {
         return next(createHttpError(400, "User with this email already exists"))
     }
 
+    // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // create user
     const user = await User.create({ firstName, lastName, email, password: hashedPassword });
 
+    // return user data
     const userData = {
         _id: user._id,
         firstName: user.firstName,
@@ -32,17 +36,20 @@ export const signUpHandler = async (req: Request, res: Response, next: NextFunct
 export const loginHandler = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
+    // check if user exists
     const user = await User.findOne({ email });
     if (!user) {
         return next(createHttpError(400, "Invalid email or password"))
     }
 
+    // check if password is valid
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
         return next(createHttpError(400, "Invalid email or password"))
     }
 
+    // generate access token
     const expiresIn = ENV_CONFIG.JWT_ACCESS_EXPIRY || "15m";
     const token = jwt.sign(
         { userId: user._id, email: user.email },
@@ -50,6 +57,7 @@ export const loginHandler = async (req: Request, res: Response, next: NextFuncti
         { expiresIn } as jwt.SignOptions
     );
 
+    // return user data
     const userData = {
         _id: user._id,
         firstName: user.firstName,

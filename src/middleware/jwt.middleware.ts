@@ -6,11 +6,17 @@ import ENV_CONFIG from "../config/env.config.ts";
 
 export const verifyJWTToken = async (req: IAuthRequest, res: Response, next: NextFunction) => {
     const reqToken = req.headers.authorization;
+    // check if token is provided
     if (!reqToken || !reqToken.startsWith("Bearer ")) {
         return next(createHttpError(401, "Unauthorized, Token is required"))
     }
+    // get token from header
     const token = reqToken.split(" ")[1];
     const decoded = jwt.verify(token as string, ENV_CONFIG.JWT_ACCESS_SECRET as string);
+
+    // attach user to request
     req.user = decoded as IJWTPayload;
+
+    // continue to next middleware
     next();
 }
